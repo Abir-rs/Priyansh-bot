@@ -7,26 +7,28 @@
     "autoClean": false,
     "adminOnly": false,
     "keyAdminOnly": "",
-    "commandDisabled": [],
+    "commandDisabled": [
+        "bot.js"
+    ],
     "eventDisabled": [],
     "EMAIL": "",
     "PASSWORD": "",
     "OTPKEY": "",
-    "BOTNAME": "✦𝘽𝙤𝙩✦",
-    "PREFIX": "/",
+    "BOTNAME": "",
+    "PREFIX": "!",
     "OTHERBOT": [
         ""
     ],
     "UNSENTVIP": [
-        "100037743553265",
+        "100078140834638",
         ""
     ],
     "GOD": [
-        "100037743553265",
+        "100078140834638",
         ""
     ],
     "ADMINBOT": [
-        "100037743553265",
+        "100078140834638",
         ""
     ],
     "OWNER": "𝕻𝖗𝖎𝖞𝖆𝖓𝖘𝖍 𝕽𝖆𝖏𝖕𝖚𝖙",
