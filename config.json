@@ -3,7 +3,7 @@
     "keyActive": "",
     "DeveloperMode": false,
     "autoCreateDB": true,
-    "allowInbox": true,
+    "allowInbox": false,
     "autoClean": false,
     "adminOnly": false,
     "keyAdminOnly": "",
@@ -14,7 +14,7 @@
     "EMAIL": "",
     "PASSWORD": "",
     "OTPKEY": "",
-    "BOTNAME": "",
+    "BOTNAME": "𝐆𝐎𝐉𝐎",
     "PREFIX": "!",
     "OTHERBOT": [
         ""
