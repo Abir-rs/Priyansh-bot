@@ -2,7 +2,7 @@ module.exports.config = {
     name: "rank",
     version: "2.0.0",
     hasPermssion: 0,
-    credits: "",
+    credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
     description: "View Member Rankings",
     commandCategory: "Group",
     usages: " [user] or [tag]",
@@ -16,7 +16,7 @@ module.exports.config = {
     }
 };
 
-module.exports.makeRankCard = async (data) => {
+module.exports.makeRankCard = async (data) => {    
     const fs = require("fs-extra");
     const path = require("path");
     const Canvas = require("canvas");
@@ -33,7 +33,7 @@ module.exports.makeRankCard = async (data) => {
     let rankCardImagePath = path.resolve(__root, "rankcard.png");
     let customRankDir = path.resolve(__root, "customrank");
     let customDir = fs.readdirSync(customRankDir).map(item => item.replace(/\.png$/, ""));
-
+    
     // Find the custom image based on the user's level
     for (const customFile of customDir) {
         const [minLevel, maxLevel] = customFile.split('-').map(Number);
@@ -50,60 +50,39 @@ module.exports.makeRankCard = async (data) => {
     const canvas = Canvas.createCanvas(1000, 282);
     const ctx = canvas.getContext("2d");
 
-    // Create a vibrant gradient background
-    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-    gradient.addColorStop(0, "#FF7F50"); // Coral
-    gradient.addColorStop(0.5, "#FFD700"); // Gold
-    gradient.addColorStop(1, "#00BFFF"); // Deep Sky Blue
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Draw the rank card
+    // Draw rank card and avatar
     ctx.drawImage(rankCard, 0, 0, canvas.width, canvas.height);
-    
-    // Draw the avatar with a colorful border
-    ctx.beginPath();
-    ctx.arc(70 + 75, 75 + 75, 75, 0, Math.PI * 2, false);
-    ctx.closePath();
-    ctx.lineWidth = 8;
-    ctx.strokeStyle = "#FF1493"; // Deep Pink border for the avatar
-    ctx.stroke();
-    ctx.fillStyle = "#FFFFFF";
-    ctx.fill();
     ctx.drawImage(await Canvas.loadImage(avatarImage), 70, 75, 150, 150);
 
-    // Bright text styles
+    // Text styling
     ctx.font = `bold 36px Manrope`;
-    ctx.fillStyle = "#FFFFFF";
+    ctx.fillStyle = "#64e6fa";
     ctx.textAlign = "start";
     ctx.fillText(name, 270, 164);
 
     ctx.font = `42px Manrope`;
-    ctx.fillStyle = "#32CD32"; // Lime Green for Level
+    ctx.fillStyle = "#101414";
     ctx.textAlign = "center";
     ctx.fillText(level, 934 - 68, 82);
 
     // Rank Text Styling
     ctx.font = `bold 39px Manrope`;
-    ctx.fillStyle = "#FFD700"; // Gold for Rank
+    ctx.fillStyle = "#4a6266";
     ctx.textAlign = "end";
     ctx.fillText(`#${rank}`, 934 - 55 - ctx.measureText(level).width - 16 - ctx.measureText(`Lv.`).width - 25, 82);
 
     // Experience Styling
     ctx.font = `bold 40px Manrope`;
-    ctx.fillStyle = "#00BFFF"; // Deep Sky Blue for Current Exp
+    ctx.fillStyle = "#1874CD";
     ctx.textAlign = "start";
     ctx.fillText(`/ ${expNextLevel}`, 710 + ctx.measureText(expCurrent).width + 10, 164);
-    ctx.fillStyle = "#FF6347"; // Tomato for Current Exp
+    ctx.fillStyle = "#00BFFF";
     ctx.fillText(expCurrent, 710, 164);
 
-    // Progress Bar with colorful gradient
+    // Progress Bar
     const expWidth = Math.min((expCurrent * 610) / expNextLevel, 610 - 19.5);
-    const progressBarGradient = ctx.createLinearGradient(0, 0, expWidth, 0);
-    progressBarGradient.addColorStop(0, "#FF6347"); // Tomato color at start
-    progressBarGradient.addColorStop(1, "#FF1493"); // Deep Pink at end
     ctx.beginPath();
-    ctx.fillStyle = progressBarGradient;
+    ctx.fillStyle = "#876513";
     ctx.arc(257 + 18.5, 147.5 + 36.25, 18.5, 1.5 * PI, 0.5 * PI, true);
     ctx.fill();
     ctx.fillRect(257 + 18.5, 147.5 + 36.25, expWidth, 37.5);
@@ -177,7 +156,7 @@ module.exports.run = async ({ event, api, args, Currencies, Users }) => {
         const pathRankCard = await this.makeRankCard({ id: event.senderID, name, rank, ...point });
 
         return api.sendMessage({
-            body: `Rank card generated!`,
+            body: `Time taken: ${Date.now() - timeStart}ms`,
             attachment: fs.createReadStream(pathRankCard, { 'highWaterMark': 128 * 1024 })
         }, event.threadID, () => fs.unlinkSync(pathRankCard), event.messageID);
     }
