@@ -2,7 +2,7 @@ module.exports.config = {
 	name: "help",
 	version: "1.0.3",
 	hasPermssion: 0,
-	credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
+	credits: "",
 	description: "Beginner's Guide",
 	commandCategory: "system",
 	usages: "[Command Name]",
