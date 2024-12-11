@@ -115,3 +115,96 @@ module.exports.makeRankCard = async (data) => {
     fs.writeFileSync(pathImg, imageBuffer);
     return pathImg;
 };
+
+module.exports.circle = async (image) => {
+    const jimp = require("jimp");
+    const img = await jimp.read(image);
+    img.circle();
+    return await img.getBufferAsync("image/png");
+};
+
+module.exports.expToLevel = (point) => {
+    return point < 0 ? 0 : Math.floor((Math.sqrt(1 + (4 * point) / 3) + 1) / 2);
+};
+
+module.exports.levelToExp = (level) => {
+    return level <= 0 ? 0 : 3 * level * (level - 1);
+};
+
+module.exports.getInfo = async (uid, Currencies) => {
+    let point = (await Currencies.getData(uid)).exp;
+    const level = this.expToLevel(point);
+    const expCurrent = point - this.levelToExp(level);
+    const expNextLevel = this.levelToExp(level + 1) - this.levelToExp(level);
+    return { level, expCurrent, expNextLevel };
+};
+
+module.exports.onLoad = async () => {
+    const { resolve } = require("path");
+    const { existsSync, mkdirSync } = require("fs-extra");
+    const { downloadFile } = global.utils;
+    const customRankPath = resolve(__dirname, "cache", "customrank");
+
+    if (!existsSync(customRankPath)) mkdirSync(customRankPath, { recursive: true });
+
+    const assets = [
+        { url: "https://raw.githubusercontent.com/catalizcs/storage-data/master/rank/fonts/regular-font.ttf", path: resolve(__dirname, 'cache', 'regular-font.ttf') },
+        { url: "https://raw.githubusercontent.com/catalizcs/storage-data/master/rank/fonts/bold-font.ttf", path: resolve(__dirname, 'cache', 'bold-font.ttf') },
+        { url: "https://raw.githubusercontent.com/catalizcs/storage-data/master/rank/rank_card/rankcard.png", path: resolve(__dirname, 'cache', 'rankcard.png') }
+    ];
+
+    for (const asset of assets) {
+        if (!existsSync(asset.path)) await downloadFile(asset.url, asset.path);
+    }
+};
+
+module.exports.run = async ({ event, api, args, Currencies, Users }) => {
+    const fs = require("fs-extra");
+
+    let dataAll = (await Currencies.getAll(["userID", "exp"]));
+    const mention = Object.keys(event.mentions);
+
+    dataAll.sort((a, b) => b.exp - a.exp);
+
+    if (args.length === 0) {
+        const rank = dataAll.findIndex(item => item.userID === event.senderID) + 1;
+        const name = global.data.userName.get(event.senderID) || await Users.getNameUser(event.senderID);
+
+        if (rank === 0) return api.sendMessage("Error❌ Please try again in 5 seconds.", event.threadID, event.messageID);
+
+        const point = await this.getInfo(event.senderID, Currencies);
+        const timeStart = Date.now();
+        const pathRankCard = await this.makeRankCard({ id: event.senderID, name, rank, ...point });
+
+        return api.sendMessage({
+            body: `Rank card generated!`,
+            attachment: fs.createReadStream(pathRankCard, { 'highWaterMark': 128 * 1024 })
+        }, event.threadID, () => fs.unlinkSync(pathRankCard), event.messageID);
+    }
+
+    if (mention.length === 1) {
+        const rank = dataAll.findIndex(item => item.userID === mention[0]) + 1;
+        const name = global.data.userName.get(mention[0]) || await Users.getNameUser(mention[0]);
+
+        if (rank === 0) return api.sendMessage("Error❌ Please try again in 5 seconds.", event.threadID, event.messageID);
+
+        const point = await this.getInfo(mention[0], Currencies);
+        const pathRankCard = await this.makeRankCard({ id: mention[0], name, rank, ...point });
+
+        return api.sendMessage({ attachment: fs.createReadStream(pathRankCard) }, event.threadID, () => fs.unlinkSync(pathRankCard), event.messageID);
+    }
+
+    if (mention.length > 1) {
+        for (const userID of mention) {
+            const rank = dataAll.findIndex(item => item.userID === userID) + 1;
+            const name = global.data.userName.get(userID) || await Users.getNameUser(userID);
+
+            if (rank === 0) return api.sendMessage("Error❌ Please try again in 5 seconds.", event.threadID, event.messageID);
+
+            const point = await this.getInfo(userID, Currencies);
+            const pathRankCard = await this.makeRankCard({ id: userID, name, rank, ...point });
+
+            return api.sendMessage({ attachment: fs.createReadStream(pathRankCard) }, event.threadID, () => fs.unlinkSync(pathRankCard), event.messageID);
+        }
+    }
+};
