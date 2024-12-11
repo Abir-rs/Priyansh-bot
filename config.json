@@ -8,7 +8,8 @@
     "adminOnly": false,
     "keyAdminOnly": "",
     "commandDisabled": [
-        "bot.js"
+        "bot.js",
+        "autoseen.js"
     ],
     "eventDisabled": [],
     "EMAIL": "",
